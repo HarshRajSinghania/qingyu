@@ -23,6 +23,7 @@ core/tests/test_r1_private_config_harness.py
 core/tests/test_r1_protocol.py
 core/tests/test_r1_provisioning.py
 core/tests/test_r1_root_pin.py
+core/tests/test_r1_root_provisioning.py
 core/tests/test_r1_runtime_unit.py
 core/tests/test_r1_schema.py
 core/tests/test_r1_schema_snapshot.py

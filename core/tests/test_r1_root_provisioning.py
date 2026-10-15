@@ -165,6 +165,7 @@ def test_private_directory_acl_preflight_covers_read_and_replacement(tmp_path, m
     assert "PropagationFlags]::InheritOnly" in scripts[0]
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="imports the real winreg module, Windows only")
 def test_pin_requires_independent_fingerprint_before_any_host_write(tmp_path, monkeypatch):
     raw, fingerprint = _public_key()
     export = tmp_path / "transfer.pub"
@@ -214,6 +215,7 @@ def test_empty_existing_64_bit_key_fails_closed(tmp_path, monkeypatch):
         ceremony.install_public_pin(export, fingerprint)
 
 
+@pytest.mark.skipif(sys.platform != "win32", reason="patches ctypes.WinDLL, which exists only on Windows")
 def test_registry_creation_race_rejects_existing_key_disposition(monkeypatch):
     closed = []
 
