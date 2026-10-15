@@ -140,6 +140,8 @@ cd ../core && pip install -e ".[dev]"
 for f in $(sed 's#^core/##' ../ci/core-portable-tests.txt); do pytest -q "$f"; done
 ```
 
+If the test database isn't migrated to the latest revision, Gateway tests stop early and tell you to run `DATABASE_URL=$TEST_DATABASE_URL APP_ENV=test alembic upgrade head`.
+
 Core was developed mainly on Windows. Running its full suite needs the setup described in `core/README.md` and `core/docs/DB_SAFETY.md`.
 
 ## Roadmap
