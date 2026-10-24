@@ -15,6 +15,8 @@ from .api_evidence import router as evidence_router
 
 settings = get_settings()
 configure_logging(settings.log_level)
+logger = logging.getLogger(__name__)
+logger.info(settings.redacted_summary())
 app = FastAPI(title=settings.app_name, version="0.1.0")
 app.add_middleware(ImportRequestSizeLimitMiddleware)
 app.include_router(archive_router)

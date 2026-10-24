@@ -28,11 +28,11 @@ class Settings(BaseSettings):
         forbidden = {"", "changeme", "example", "change-this-local-token", "change-me"}
         if self.app_env.lower() != "test":
             if normalized in forbidden:
-                raise ValueError("API_TOKEN must be a non-example secret")
+                raise ValueError("API_TOKEN must be a non-empty, non-example secret (see .env.example)")
             if normalized_evidence in forbidden:
-                raise ValueError("EVIDENCE_READ_API_TOKEN must be a non-example secret")
+                raise ValueError("EVIDENCE_READ_API_TOKEN must be a non-empty, non-example secret (see .env.example)")
             if normalized_cursor_key in forbidden:
-                raise ValueError("EVIDENCE_CURSOR_SIGNING_KEY must be a non-example secret")
+                raise ValueError("EVIDENCE_CURSOR_SIGNING_KEY must be a non-empty, non-example secret (see .env.example)")
             if secrets.compare_digest(self.api_token, self.evidence_read_api_token):
                 raise ValueError("EVIDENCE_READ_API_TOKEN must differ from API_TOKEN")
             if secrets.compare_digest(self.evidence_cursor_signing_key, self.api_token):
@@ -44,6 +44,32 @@ class Settings(BaseSettings):
                     "EVIDENCE_CURSOR_SIGNING_KEY must differ from EVIDENCE_READ_API_TOKEN"
                 )
         return self
+
+
+    def redacted_summary(self) -> str:
+        """Return a one-line redacted summary of effective configuration.
+        Secrets are never included; only whether they are set.
+        """
+        from urllib.parse import urlparse
+        db_host = "unset"
+        if self.database_url:
+            try:
+                parsed = urlparse(self.database_url)
+                db_host = parsed.hostname or "invalid"
+            except Exception:
+                db_host = "invalid"
+        secrets_set = [
+            name for name, val in [
+                ("API_TOKEN", self.api_token),
+                ("EVIDENCE_READ_API_TOKEN", self.evidence_read_api_token),
+                ("EVIDENCE_CURSOR_SIGNING_KEY", self.evidence_cursor_signing_key),
+            ] if val and val.strip()
+        ]
+        return (
+            f"config: APP_ENV={self.app_env} DB_HOST={db_host} "
+            f"secrets_set=[{','.join(secrets_set) or 'none'}] "
+            f"archive_root={self.archive_root} log_level={self.log_level}"
+        )
 
 @lru_cache
 def get_settings() -> Settings:
